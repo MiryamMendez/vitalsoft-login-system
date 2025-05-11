@@ -3,8 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
 import os
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__, template_folder='templates')
 
 app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key')
 
