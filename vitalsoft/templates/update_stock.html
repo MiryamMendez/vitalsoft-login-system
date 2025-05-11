@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Actualizar Stock - {{ medication.name }} - VitalSoft{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold">Actualizar Stock</h1>
+            <a href="{{ url_for('medications') }}" class="text-blue-600 hover:text-blue-800">
+                <i class="fas fa-arrow-left mr-2"></i>Volver
+            </a>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <!-- Medication Info -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h2 class="text-lg font-semibold mb-4">Información del Medicamento</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Nombre</p>
+                        <p class="font-medium">{{ medication.name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Stock Actual</p>
+                        <p class="font-medium">{{ medication.stock }} {{ medication.unit }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-sm text-gray-600">Descripción</p>
+                        <p class="font-medium">{{ medication.description or 'Sin descripción' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Update Form -->
+            <form action="{{ url_for('update_medication_stock', id=medication.id) }}" method="POST">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nuevo Stock</label>
+                        <input type="number" name="stock" value="{{ medication.stock }}" required min="0"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="mt-1 text-sm text-gray-500">Ingrese la cantidad total disponible en {{ medication.unit }}</p>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <a href="{{ url_for('medications') }}"
+                           class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                            Cancelar
+                        </a>
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Actualizar Stock
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Stock History -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-lg font-semibold mb-4">Historial de Prescripciones</h2>
+            {% set prescriptions = medication.prescriptions|sort(attribute='created_at', reverse=true) %}
+            {% if prescriptions %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Fecha</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Paciente</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Doctor</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Dosis</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for prescription in prescriptions[:10] %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 text-sm">
+                                {{ prescription.created_at.strftime('%d/%m/%Y') }}
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="text-sm text-gray-900">{{ prescription.appointment.patient.name }}</div>
+                                <div class="text-xs text-gray-500">{{ prescription.appointment.patient.expediente }}</div>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="text-sm text-gray-900">{{ prescription.appointment.doctor.name }}</div>
+                                <div class="text-xs text-gray-500">{{ prescription.appointment.doctor.specialty }}</div>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="text-sm text-gray-900">{{ prescription.dosage }}</div>
+                                {% if prescription.instructions %}
+                                <div class="text-xs text-gray-500">{{ prescription.instructions }}</div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-4">No hay prescripciones registradas para este medicamento.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
