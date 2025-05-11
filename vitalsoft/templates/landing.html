@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}VitalSoft - Sistema de Gestión Hospitalaria{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <div class="bg-white">
+        <div class="container mx-auto px-4 py-16">
+            <div class="flex flex-col lg:flex-row items-center justify-between">
+                <div class="lg:w-1/2 mb-8 lg:mb-0">
+                    <h1 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+                        Gestión Hospitalaria Inteligente
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-8">
+                        Optimice la gestión de su centro médico con nuestra solución integral. 
+                        Administre pacientes, citas, medicamentos y más en una sola plataforma.
+                    </p>
+                    <div class="space-x-4">
+                        <a href="{{ url_for('login') }}" 
+                           class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+                            Iniciar Sesión
+                        </a>
+                        <a href="{{ url_for('register_user') }}" 
+                           class="inline-block px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300">
+                            Registrarse
+                        </a>
+                    </div>
+                </div>
+                <div class="lg:w-1/2">
+                    <div class="bg-gray-100 p-8 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <i class="fas fa-user-md text-3xl text-blue-600 mb-4"></i>
+                                <h3 class="text-lg font-semibold mb-2">Gestión de Doctores</h3>
+                                <p class="text-gray-600">Administre el personal médico y sus especialidades</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <i class="fas fa-calendar-check text-3xl text-green-600 mb-4"></i>
+                                <h3 class="text-lg font-semibold mb-2">Control de Citas</h3>
+                                <p class="text-gray-600">Programe y gestione citas médicas eficientemente</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <i class="fas fa-pills text-3xl text-purple-600 mb-4"></i>
+                                <h3 class="text-lg font-semibold mb-2">Inventario Médico</h3>
+                                <p class="text-gray-600">Control de medicamentos y suministros</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <i class="fas fa-file-medical text-3xl text-red-600 mb-4"></i>
+                                <h3 class="text-lg font-semibold mb-2">Historias Clínicas</h3>
+                                <p class="text-gray-600">Gestión digital de expedientes médicos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="container mx-auto px-4 py-16">
+        <h2 class="text-3xl font-bold text-center mb-12">Características Principales</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="text-center mb-4">
+                    <i class="fas fa-shield-alt text-4xl text-blue-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-center mb-4">Seguridad Garantizada</h3>
+                <p class="text-gray-600 text-center">
+                    Protección de datos sensibles y cumplimiento de normativas de privacidad médica.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="text-center mb-4">
+                    <i class="fas fa-chart-line text-4xl text-green-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-center mb-4">Reportes Avanzados</h3>
+                <p class="text-gray-600 text-center">
+                    Análisis detallados y estadísticas para la toma de decisiones.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="text-center mb-4">
+                    <i class="fas fa-mobile-alt text-4xl text-purple-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-center mb-4">Acceso Móvil</h3>
+                <p class="text-gray-600 text-center">
+                    Gestione su centro médico desde cualquier dispositivo, en cualquier momento.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="bg-white">
+        <div class="container mx-auto px-4 py-16">
+            <h2 class="text-3xl font-bold text-center mb-12">¿Por qué elegir VitalSoft?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Ahorro de Tiempo</h3>
+                    <p class="text-gray-600">Automatización de procesos administrativos</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-double text-2xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Mayor Eficiencia</h3>
+                    <p class="text-gray-600">Optimización de recursos y procesos</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-2xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Mejor Atención</h3>
+                    <p class="text-gray-600">Servicio más personalizado al paciente</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-pie text-2xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Control Total</h3>
+                    <p class="text-gray-600">Gestión integral de su centro médico</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="container mx-auto px-4 py-16">
+        <div class="bg-blue-600 rounded-lg p-8 md:p-12">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-white mb-4">
+                    Comience a optimizar su gestión hospitalaria hoy
+                </h2>
+                <p class="text-xl text-blue-100 mb-8">
+                    Únase a los centros médicos que ya confían en VitalSoft
+                </p>
+                <a href="{{ url_for('register_user') }}" 
+                   class="inline-block px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100">
+                    Comenzar Ahora
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
