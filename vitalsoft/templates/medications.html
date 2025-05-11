@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Medicamentos - VitalSoft{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold">Gestión de Medicamentos</h1>
+        <button onclick="document.getElementById('addMedicationModal').classList.remove('hidden')"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            <i class="fas fa-plus mr-2"></i>Nuevo Medicamento
+        </button>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="relative flex-1">
+                <input type="text" id="searchInput" placeholder="Buscar medicamentos..."
+                       onkeyup="filterMedications()"
+                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
+            <div class="flex gap-4">
+                <select id="filterUnit" onchange="filterMedications()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Todas las unidades</option>
+                    <option value="tabletas">Tabletas</option>
+                    <option value="cápsulas">Cápsulas</option>
+                    <option value="ml">Mililitros</option>
+                    <option value="mg">Miligramos</option>
+                    <option value="ampollas">Ampollas</option>
+                </select>
+                <select id="filterStock" onchange="filterMedications()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Todo el stock</option>
+                    <option value="low">Stock bajo (≤10)</option>
+                    <option value="out">Sin stock</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medications List -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Nombre</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Descripción</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Stock</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Unidad</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Última Actualización</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for medication in medications %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ medication.name }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-500">{{ medication.description or 'Sin descripción' }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                           {% if medication.stock == 0 %}bg-red-100 text-red-800
+                                           {% elif medication.stock <= 10 %}bg-yellow-100 text-yellow-800
+                                           {% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ medication.stock }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ medication.unit }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ medication.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+                        <td class="px-6 py-4 text-sm space-x-3">
+                            <button onclick="window.location.href='{{ url_for('update_medication_stock', id=medication.id) }}'"
+                                    class="text-blue-600 hover:text-blue-800"
+                                    title="Actualizar Stock">
+                                <i class="fas fa-boxes"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ url_for('edit_medication', id=medication.id) }}'"
+                                    class="text-green-600 hover:text-green-800"
+                                    title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteMedication('{{ medication.id }}')"
+                                    class="text-red-600 hover:text-red-800"
+                                    title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Medication Modal -->
+    <div id="addMedicationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-semibold mb-4">Agregar Nuevo Medicamento</h3>
+                <form action="{{ url_for('add_medication') }}" method="POST">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input type="text" name="name" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                            <textarea name="description" rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Inicial</label>
+                            <input type="number" name="stock" required min="0"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Unidad</label>
+                            <select name="unit" required class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                <option value="">Seleccionar unidad</option>
+                                <option value="tabletas">Tabletas</option>
+                                <option value="cápsulas">Cápsulas</option>
+                                <option value="ml">Mililitros</option>
+                                <option value="mg">Miligramos</option>
+                                <option value="ampollas">Ampollas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-4 mt-6">
+                        <button type="button"
+                                onclick="document.getElementById('addMedicationModal').classList.add('hidden')"
+                                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteMedication(id) {
+    if (confirm('¿Está seguro de que desea eliminar este medicamento?')) {
+        window.location.href = `/medications/delete/${id}`;
+    }
+};
+
+function filterMedications() {
+    const searchText = document.getElementById('searchInput').value.toLowerCase();
+    const unit = document.getElementById('filterUnit').value;
+    const stockFilter = document.getElementById('filterStock').value;
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const name = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+        const description = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const stock = parseInt(row.querySelector('td:nth-child(3)').textContent);
+        const medicationUnit = row.querySelector('td:nth-child(4)').textContent;
+        
+        const matchesSearch = name.includes(searchText) || description.includes(searchText);
+        const matchesUnit = !unit || medicationUnit === unit;
+        const matchesStock = !stockFilter || 
+                           (stockFilter === 'low' && stock <= 10 && stock > 0) || 
+                           (stockFilter === 'out' && stock === 0);
+        
+        row.style.display = (matchesSearch && matchesUnit && matchesStock) ? '' : 'none';
+    });
+};
+</script>
+{% endblock %}
