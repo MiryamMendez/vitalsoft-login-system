@@ -1,6 +1,14 @@
-Mensaje del commit: "Fix deploy: add dummy commit to force clean build"
-
-Cambios realizados:
-- Se agrega un archivo vacío llamado commit_fix_deploy.txt para forzar un nuevo commit y un despliegue limpio en Render.
-
-Este commit no afecta el código ni la funcionalidad, solo fuerza a Render a reconstruir todo desde cero para evitar problemas de caché o archivos faltantes.
+# Removed unnecessary files and folders to simplify deployment
+# Keep only essential files for the Flask app to run:
+# - vitalsoft/app.py
+# - vitalsoft/__init__.py
+# - vitalsoft/templates/ (only required HTML templates)
+# - requirements.txt
+# - Procfile
+# - render.yaml or Dockerfile (depending on deployment method)
+# - vitalsoft/models.py (if used by app.py)
+# 
+# Delete or archive:
+# - commit_fix_deploy.txt
+# - pythonanywhere_deploy_instructions.txt
+# - any other unrelated or backup files
