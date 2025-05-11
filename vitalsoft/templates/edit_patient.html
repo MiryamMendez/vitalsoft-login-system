@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Paciente - {{ patient.name }} - VitalSoft{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold">Editar Paciente</h1>
+            <a href="{{ url_for('patients') }}" class="text-blue-600 hover:text-blue-800">
+                <i class="fas fa-arrow-left mr-2"></i>Volver
+            </a>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <form action="{{ url_for('edit_patient', id=patient.id) }}" method="POST">
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ID Paciente</label>
+                            <input type="text" value="{{ patient.patient_id }}" disabled
+                                   class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Expediente</label>
+                            <input type="text" value="{{ patient.expediente }}" disabled
+                                   class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                        <input type="text" name="name" value="{{ patient.name }}" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" value="{{ patient.email }}" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                        <input type="tel" name="phone" value="{{ patient.phone }}" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
+                        <input type="date" name="birth_date" value="{{ patient.birth_date.strftime('%Y-%m-%d') }}" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Sangre</label>
+                        <select name="blood_type"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seleccionar tipo de sangre</option>
+                            {% for blood_type in ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] %}
+                            <option value="{{ blood_type }}" {% if patient.blood_type == blood_type %}selected{% endif %}>
+                                {{ blood_type }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Alergias</label>
+                        <textarea name="allergies" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Ingrese las alergias del paciente (opcional)">{{ patient.allergies }}</textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 mt-4">
+                        <a href="{{ url_for('patients') }}"
+                           class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                            Cancelar
+                        </a>
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Patient History Summary -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-lg font-semibold mb-4">Resumen del Historial</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Total de Consultas</p>
+                    <p class="text-2xl font-semibold">{{ patient.appointments|length }}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Última Consulta</p>
+                    <p class="text-md font-semibold">
+                        {% set last_appointment = patient.appointments|sort(attribute='date')|last %}
+                        {% if last_appointment %}
+                            {{ last_appointment.date.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            Sin consultas
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Próxima Cita</p>
+                    <p class="text-md font-semibold">
+                        {% set next_appointment = patient.appointments|selectattr('date', 'ge', now.date())|first %}
+                        {% if next_appointment %}
+                            {{ next_appointment.date.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            No programada
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
