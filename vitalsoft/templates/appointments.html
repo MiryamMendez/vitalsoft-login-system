@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Citas - VitalSoft{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold">Gestión de Citas</h1>
+        <button onclick="document.getElementById('addAppointmentModal').classList.remove('hidden')"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            <i class="fas fa-calendar-plus mr-2"></i>Nueva Cita
+        </button>
+    </div>
+
+    <!-- Appointments List -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Fecha</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Hora</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Paciente</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Doctor</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Motivo</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Estado</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for appointment in appointments %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ appointment.date.strftime('%d/%m/%Y') }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ appointment.time.strftime('%H:%M') }}</td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ appointment.patient.name }}</div>
+                            <div class="text-xs text-gray-500">{{ appointment.patient.expediente }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ appointment.doctor.name }}</div>
+                            <div class="text-xs text-gray-500">{{ appointment.doctor.specialty }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ appointment.reason }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs rounded-full 
+                                       {% if appointment.status == 'Programada' %}bg-blue-100 text-blue-800
+                                       {% elif appointment.status == 'Completada' %}bg-green-100 text-green-800
+                                       {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ appointment.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm space-x-3">
+                            <button onclick="window.location.href='{{ url_for('edit_appointment', id=appointment.id) }}'"
+                                    class="text-blue-600 hover:text-blue-800"
+                                    title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteAppointment('{{ appointment.id }}')"
+                                    class="text-red-600 hover:text-red-800"
+                                    title="Cancelar">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Appointment Modal -->
+    <div id="addAppointmentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-semibold mb-4">Programar Nueva Cita</h3>
+                <form action="{{ url_for('appointments') }}" method="POST">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Paciente</label>
+                        <select name="patient_id" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">Seleccionar paciente</option>
+                            {% for patient in patients %}
+                            <option value="{{ patient.id }}" 
+                                    {% if request.args.get('patient_id')|int == patient.id %}selected{% endif %}>
+                                {{ patient.name }} - {{ patient.expediente }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
+                        <select name="doctor_id" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">Seleccionar doctor</option>
+                            {% for doctor in doctors %}
+                            {% if doctor.status == 'Activo' %}
+                            <option value="{{ doctor.id }}">
+                                {{ doctor.name }} - {{ doctor.specialty }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                        <input type="date" name="date" required min="{{ now.date() }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hora</label>
+                        <input type="time" name="time" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de la Consulta</label>
+                        <textarea name="reason" rows="2" required
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Prescripción de Medicamentos</label>
+                        <div id="medications-container" class="space-y-4">
+                            <!-- Medication template will be cloned here -->
+                        </div>
+                        <button type="button" onclick="addMedication()"
+                                class="mt-2 text-blue-600 hover:text-blue-800 text-sm">
+                            <i class="fas fa-plus mr-1"></i>Agregar Medicamento
+                        </button>
+                    </div>
+
+                    <div class="flex justify-end gap-4">
+                        <button type="button"
+                                onclick="document.getElementById('addAppointmentModal').classList.add('hidden')"
+                                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Programar Cita
+                        </button>
+                    </div>
+
+                    <!-- Hidden medication template -->
+                    <div id="medication-template" class="hidden">
+                        <div class="medication-entry border rounded p-3 relative">
+                            <button type="button" onclick="removeMedication(this)"
+                                    class="absolute top-2 right-2 text-red-600 hover:text-red-800">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="grid grid-cols-1 gap-2">
+                                <select name="medications[]" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="">Seleccionar medicamento</option>
+                                    {% for medication in medications %}
+                                    {% if medication.stock > 0 %}
+                                    <option value="{{ medication.id }}">
+                                        {{ medication.name }} ({{ medication.stock }} {{ medication.unit }})
+                                    </option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <input type="text" name="dosage[]" placeholder="Dosis (ej: 1 tableta cada 8 horas)"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                <textarea name="instructions[]" placeholder="Instrucciones adicionales"
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteAppointment(id) {
+    if (confirm('¿Está seguro de que desea cancelar esta cita?')) {
+        window.location.href = `/appointments/delete/${id}`;
+    }
+}
+
+function addMedication() {
+    const template = document.getElementById('medication-template');
+    const container = document.getElementById('medications-container');
+    const clone = template.firstElementChild.cloneNode(true);
+    container.appendChild(clone);
+}
+
+function removeMedication(button) {
+    button.closest('.medication-entry').remove();
+}
+</script>
+{% endblock %}
