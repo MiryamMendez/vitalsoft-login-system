@@ -1,0 +1,6 @@
+Mensaje del commit: "Fix deploy: add dummy commit to force clean build"
+
+Cambios realizados:
+- Se agrega un archivo vacío llamado commit_fix_deploy.txt para forzar un nuevo commit y un despliegue limpio en Render.
+
+Este commit no afecta el código ni la funcionalidad, solo fuerza a Render a reconstruir todo desde cero para evitar problemas de caché o archivos faltantes.
