@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Historia Clínica - {{ patient.name }} - VitalSoft{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold">Historia Clínica</h1>
+            <p class="text-gray-600">Expediente: {{ patient.expediente }}</p>
+        </div>
+        <a href="{{ url_for('records') }}" class="text-blue-600 hover:text-blue-800">
+            <i class="fas fa-arrow-left mr-2"></i>Volver
+        </a>
+    </div>
+
+    <!-- Patient Information -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Información del Paciente</h3>
+                <div class="space-y-2">
+                    <p><span class="font-medium">Nombre:</span> {{ patient.name }}</p>
+                    <p><span class="font-medium">Edad:</span> {{ ((now.date() - patient.birth_date).days / 365.25)|int }} años</p>
+                    <p><span class="font-medium">Fecha de Nacimiento:</span> {{ patient.birth_date.strftime('%d/%m/%Y') }}</p>
+                    <p><span class="font-medium">Tipo de Sangre:</span> {{ patient.blood_type or 'No registrado' }}</p>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Contacto</h3>
+                <div class="space-y-2">
+                    <p><span class="font-medium">Email:</span> {{ patient.email }}</p>
+                    <p><span class="font-medium">Teléfono:</span> {{ patient.phone }}</p>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Información Médica</h3>
+                <div class="space-y-2">
+                    <p><span class="font-medium">Alergias:</span> {{ patient.allergies or 'Ninguna registrada' }}</p>
+                    <p><span class="font-medium">Total de Consultas:</span> {{ appointments|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical History -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold">Historial de Consultas</h3>
+            <a href="{{ url_for('appointments') }}?patient_id={{ patient.id }}" 
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <i class="fas fa-plus mr-2"></i>Nueva Consulta
+            </a>
+        </div>
+
+        {% if appointments %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Fecha</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Doctor</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Motivo</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Estado</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Prescripciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for appointment in appointments %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-4">
+                            <div class="text-sm text-gray-900">{{ appointment.date.strftime('%d/%m/%Y') }}</div>
+                            <div class="text-xs text-gray-500">{{ appointment.time.strftime('%H:%M') }}</div>
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="text-sm text-gray-900">{{ appointment.doctor.name }}</div>
+                            <div class="text-xs text-gray-500">{{ appointment.doctor.specialty }}</div>
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="text-sm text-gray-900">{{ appointment.reason }}</div>
+                            {% if appointment.notes %}
+                            <div class="text-xs text-gray-500">{{ appointment.notes }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="px-2 py-1 text-xs rounded-full 
+                                       {% if appointment.status == 'Programada' %}bg-blue-100 text-blue-800
+                                       {% elif appointment.status == 'Completada' %}bg-green-100 text-green-800
+                                       {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ appointment.status }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4">
+                            {% if appointment.prescriptions %}
+                            <div class="space-y-2">
+                                {% for prescription in appointment.prescriptions %}
+                                <div class="text-sm">
+                                    <div class="font-medium">{{ prescription.medication.name }}</div>
+                                    <div class="text-xs text-gray-500">{{ prescription.dosage }}</div>
+                                    {% if prescription.instructions %}
+                                    <div class="text-xs text-gray-500">{{ prescription.instructions }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span class="text-sm text-gray-500">Sin prescripciones</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <p class="text-gray-500">No hay consultas registradas para este paciente.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
