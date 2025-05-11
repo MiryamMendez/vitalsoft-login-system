@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder='vitalsoft/templates')
 
 app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key')
 
