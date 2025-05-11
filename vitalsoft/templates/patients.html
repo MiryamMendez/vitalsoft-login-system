@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Pacientes - VitalSoft{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold">Gestión de Pacientes</h1>
+        <button onclick="document.getElementById('addPatientModal').classList.remove('hidden')"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            <i class="fas fa-user-plus mr-2"></i>Nuevo Paciente
+        </button>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="relative flex-1">
+                <input type="text" id="searchInput" placeholder="Buscar pacientes..."
+                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
+            <div class="flex gap-4">
+                <select id="filterBloodType" onchange="filterPatients()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tipo de Sangre</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patients List -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Expediente</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Nombre</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Edad</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Tipo de Sangre</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Contacto</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Última Consulta</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for patient in patients %}
+                    {% set last_appointment = patient.appointments|sort(attribute='date', reverse=true)|first %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ patient.expediente }}</td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ patient.name }}</div>
+                            <div class="text-xs text-gray-500">{{ patient.patient_id }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ ((now.date() - patient.birth_date).days / 365.25)|int }} años
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                {{ patient.blood_type or 'No registrado' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ patient.email }}</div>
+                            <div class="text-xs text-gray-500">{{ patient.phone }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if last_appointment %}
+                            <div class="text-sm text-gray-900">{{ last_appointment.date.strftime('%d/%m/%Y') }}</div>
+                            <div class="text-xs text-gray-500">{{ last_appointment.reason }}</div>
+                            {% else %}
+                            <span class="text-sm text-gray-500">Sin consultas</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm space-x-3">
+                            <button onclick="window.location.href='{{ url_for('view_record', id=patient.id) }}'"
+                                    class="text-blue-600 hover:text-blue-800"
+                                    title="Ver Historial">
+                                <i class="fas fa-file-medical"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ url_for('edit_patient', id=patient.id) }}'"
+                                    class="text-green-600 hover:text-green-800"
+                                    title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deletePatient('{{ patient.id }}')"
+                                    class="text-red-600 hover:text-red-800"
+                                    title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Patient Modal -->
+    <div id="addPatientModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-semibold mb-4">Agregar Nuevo Paciente</h3>
+                <form action="{{ url_for('add_patient') }}" method="POST">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                            <input type="text" name="name" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" name="email" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                            <input type="tel" name="phone" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
+                            <input type="date" name="birth_date" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Sangre</label>
+                            <select name="blood_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                <option value="">Seleccionar tipo de sangre</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Alergias</label>
+                            <textarea name="allergies" rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                      placeholder="Ingrese las alergias del paciente (opcional)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-4 mt-6">
+                        <button type="button"
+                                onclick="document.getElementById('addPatientModal').classList.add('hidden')"
+                                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deletePatient(id) {
+    if (confirm('¿Está seguro de que desea eliminar este paciente?')) {
+        window.location.href = `/patients/delete/${id}`;
+    }
+};
+
+function filterPatients() {
+    const searchText = document.getElementById('searchInput').value.toLowerCase();
+    const bloodType = document.getElementById('filterBloodType').value;
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const expediente = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+        const patientBloodType = row.querySelector('td:nth-child(4)').textContent.trim();
+        
+        const matchesSearch = name.includes(searchText) || expediente.includes(searchText);
+        const matchesBloodType = !bloodType || patientBloodType === bloodType;
+        
+        if (matchesSearch && matchesBloodType) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+};
+
+document.getElementById('searchInput').addEventListener('keyup', filterPatients);
+</script>
+{% endblock %}
