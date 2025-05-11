@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - VitalSoft{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <p class="mt-1 text-sm text-gray-600">Bienvenido al sistema de gestión hospitalaria</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Patients -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Pacientes</p>
+                    <p class="text-3xl font-semibold text-gray-900">{{ patients|length }}</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i class="fas fa-user-circle text-2xl text-blue-600"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ url_for('patients') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Ver todos los pacientes <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Total Doctors -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Doctores</p>
+                    <p class="text-3xl font-semibold text-gray-900">{{ doctors|length }}</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <i class="fas fa-user-md text-2xl text-green-600"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ url_for('doctors') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Ver todos los doctores <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Scheduled Appointments -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Citas Programadas</p>
+                    <p class="text-3xl font-semibold text-gray-900">{{ appointments|length }}</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <i class="fas fa-calendar-check text-2xl text-purple-600"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ url_for('appointments') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Ver todas las citas <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Medications -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Medicamentos</p>
+                    <p class="text-3xl font-semibold text-gray-900">{{ medications|length }}</p>
+                </div>
+                <div class="bg-red-100 rounded-full p-3">
+                    <i class="fas fa-pills text-2xl text-red-600"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ url_for('medications') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Ver inventario <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="bg-white rounded-lg shadow-lg mb-8">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-900">Próximas Citas</h2>
+                <a href="{{ url_for('appointments') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Ver todas <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Fecha</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Hora</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Paciente</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Doctor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for appointment in appointments[:5] %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ appointment.date.strftime('%d/%m/%Y') }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ appointment.time.strftime('%H:%M') }}</td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ appointment.patient.name }}</div>
+                            <div class="text-xs text-gray-500">{{ appointment.patient.expediente }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ appointment.doctor.name }}</div>
+                            <div class="text-xs text-gray-500">{{ appointment.doctor.specialty }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs rounded-full 
+                                       {% if appointment.status == 'Programada' %}bg-blue-100 text-blue-800
+                                       {% elif appointment.status == 'Completada' %}bg-green-100 text-green-800
+                                       {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ appointment.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm space-x-3">
+                            <a href="{{ url_for('view_record', id=appointment.patient.id) }}"
+                               class="text-blue-600 hover:text-blue-800"
+                               title="Ver Historial">
+                                <i class="fas fa-file-medical"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions and Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <a href="{{ url_for('appointments') }}" 
+                   class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100">
+                    <i class="fas fa-calendar-plus text-blue-600 mr-3"></i>
+                    <span class="text-sm font-medium text-gray-900">Nueva Cita</span>
+                </a>
+                <a href="{{ url_for('patients') }}"
+                   class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100">
+                    <i class="fas fa-user-plus text-green-600 mr-3"></i>
+                    <span class="text-sm font-medium text-gray-900">Nuevo Paciente</span>
+                </a>
+                <a href="{{ url_for('medications') }}"
+                   class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100">
+                    <i class="fas fa-pills text-purple-600 mr-3"></i>
+                    <span class="text-sm font-medium text-gray-900">Actualizar Stock</span>
+                </a>
+                <a href="{{ url_for('records') }}"
+                   class="flex items-center p-4 bg-red-50 rounded-lg hover:bg-red-100">
+                    <i class="fas fa-file-medical text-red-600 mr-3"></i>
+                    <span class="text-sm font-medium text-gray-900">Ver Historias</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Low Stock Medications -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Medicamentos con Stock Bajo</h2>
+            <div class="space-y-4">
+                {% set low_stock = medications|selectattr('stock', 'le', 10)|list %}
+                {% if low_stock %}
+                {% for medication in low_stock[:5] %}
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">{{ medication.name }}</p>
+                        <p class="text-xs text-gray-500">{{ medication.stock }} {{ medication.unit }} disponibles</p>
+                    </div>
+                    <a href="{{ url_for('update_medication_stock', id=medication.id) }}"
+                       class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-plus-circle"></i>
+                    </a>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-sm text-gray-500 text-center py-4">No hay medicamentos con stock bajo</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
