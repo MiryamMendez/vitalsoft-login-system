@@ -1,22 +1,21 @@
-# VitalSoft Medical System
+# Sistema médico VitalSoft
 
-A simple medical system built with Flask, MySQL, HTML, Tailwind CSS, and JavaScript.
+Un sistema médico simple creado con Flask, MySQL, HTML, Tailwind CSS y JavaScript.
 
-## Features
+## Características
 
-- Patient registration
-- Appointment scheduling
-- Viewing patient appointment records
+- Registro de pacientes
+- Programación de citas
+- Visualización de registros de citas de pacientes
 
-## Setup Instructions
+## Instrucciones de configuración
 
-1. Install Python dependencies:
+1. Instalar dependencias de Python:
 ```
 pip install flask flask-mysqldb
 ```
 
-2. Setup MySQL database:
-
+2. Configurar la base de datos MySQL:
 ```sql
 CREATE DATABASE vitalsoft;
 
@@ -36,17 +35,17 @@ CREATE TABLE appointments (
 );
 ```
 
-3. Update MySQL credentials in `vitalsoft/app.py` if needed.
+3. Actualice las credenciales de MySQL en `vitalsoft/app.py` si es necesario.
 
-4. Run the Flask app:
-
+4. Ejecute la aplicación Flask:
 ```
 python vitalsoft/app.py
 ```
 
-5. Access the app at `http://localhost:5000`
+5. Accede a la aplicación en http://localhost:5000
 
-## Notes
+## Notas
 
-- This is a simple demo system for medical management.
-- Tailwind CSS is included via CDN for styling.
+Este es un sistema de demostración simple para la gestión médica.
+
+Tailwind CSS se incluye a través de CDN para estilo.
