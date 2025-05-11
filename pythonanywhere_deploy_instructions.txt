@@ -1,0 +1,50 @@
+Instrucciones para desplegar VitalSoft en PythonAnywhere:
+
+1. Regístrate en https://www.pythonanywhere.com/registration/register/beginner/
+
+2. Crea una nueva Web App:
+   - En el panel de control, haz clic en "Web".
+   - Haz clic en "Add a new web app".
+   - Selecciona "Manual configuration".
+   - Elige la versión de Python 3.11 (o la que uses).
+
+3. Sube el código:
+   - Usa la pestaña "Files" para subir los archivos y carpetas del proyecto.
+   - Alternativamente, abre una consola Bash y clona tu repositorio con:
+     ```
+     git clone https://github.com/MiryamMendez/vitalsoft-login-system.git
+     ```
+   - Navega a la carpeta del proyecto.
+
+4. Configura el archivo WSGI:
+   - En la pestaña "Web", haz clic en el enlace del archivo WSGI para editarlo.
+   - Modifica para importar la app Flask desde `vitalsoft.app`:
+     ```python
+     import sys
+     path = '/home/tu_usuario/vitalsoft-login-system'
+     if path not in sys.path:
+         sys.path.insert(0, path)
+
+     from vitalsoft.app import app as application
+     ```
+
+5. Instala dependencias:
+   - Abre una consola Bash en PythonAnywhere.
+   - Ejecuta:
+     ```
+     pip install --user -r /home/tu_usuario/vitalsoft-login-system/requirements.txt
+     ```
+
+6. Configura la base de datos SQLite:
+   - Asegúrate que la ruta en `app.py` para la base de datos SQLite sea relativa o absoluta y accesible.
+   - Por ejemplo, usa:
+     ```python
+     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///home/tu_usuario/vitalsoft-login-system/instance/vitalsoft.db'
+     ```
+
+7. Recarga la aplicación:
+   - En la pestaña "Web", haz clic en "Reload" para aplicar los cambios.
+
+8. Accede a la URL pública que PythonAnywhere te asigna para ver tu aplicación funcionando.
+
+Si necesitas ayuda con algún paso, dime y te guío.
