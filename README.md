@@ -1,37 +1,51 @@
+# Sistema médico VitalSoft
 
-#MIRYAM MENDEZ 
----
+Un sistema médico simple creado con Flask, MySQL, HTML, Tailwind CSS y JavaScript.
 
-# VitalSoft Login System
+## Características
 
-## Acerca del Proyecto 
-VitalSoft es un sistema de administración médica, diseñada de una manera más accesible para el personal de salud. La aplicación está construida con Flask y PLANTILLAS EN HTML. Se enfoca en ofrecer una experiencia sencilla e intuitiva.
+- Registro de pacientes
+- Programación de citas
+- Visualización de registros de citas de pacientes
 
-## Instalación
-Para hacer ek st up de VitalSoft en tu sistema local sigue estos pasos: 
+## Instrucciones de configuración
 
-1. **Clona el repositorio:**
-   ```bash
-   git clone https://github.com/yourusername/vitalsoft-login.git
-   cd vitalsoft-login
-   ```
+1. Instalar dependencias de Python:
+```
+pip install flask flask-mysqldb
+```
 
-2. **Instala las dependencias requeridas**
-   Asegurate que Python esté instalado, después crea un entorno virtual e instala FLASK
-   ```bash
-   python -m venv venv
-   source venv/bin/activate # On Windows use `venv\Scripts\activate`
-   pip install Flask
-   ```
+2. Configurar la base de datos MySQL:
+```sql
+CREATE DATABASE vitalsoft;
 
-4. **Corre la aplicación:**
-   Set the environment variable for Flask and start the server:
-   ```bash
-   export FLASK_APP=app.py # On Windows use `set FLASK_APP=app.py`
-   flask run
-   ```
-   La aplicación estará dispoible como `http://127.0.0.1:5000` en tu web browser.
+USE vitalsoft;
 
-## Uso
-Una vez que tu servidor esté corriendo puedes acceder al link  `http://127.0.0.1:5000/login` para acceder a la app
+CREATE TABLE patients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
 
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    date DATE NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES patients(id)
+);
+```
+
+3. Actualice las credenciales de MySQL en `vitalsoft/app.py` si es necesario.
+
+4. Ejecute la aplicación Flask:
+```
+python vitalsoft/app.py
+```
+
+5. Accede a la aplicación en http://localhost:5000
+
+## Notas
+
+Este es un sistema de demostración simple para la gestión médica.
+
+Tailwind CSS se incluye a través de CDN para estilo.
